@@ -31,8 +31,10 @@ joint_images = scaler.fit_transform(joint_images)
 
 # Configuración del SOM
 som_x, som_y = 100, 100
+sigma_inicial = 30
+lr_inicial = 5
 som = MiniSom(som_x, som_y, joint_images.shape[1], 
-              sigma=1.5, learning_rate=0.1, 
+              sigma=sigma_inicial, learning_rate=lr_inicial, 
               neighborhood_function='gaussian', 
               random_seed=42)
 
@@ -40,26 +42,35 @@ som = MiniSom(som_x, som_y, joint_images.shape[1],
 som.pca_weights_init(joint_images)
 
 # --- CONFIGURACIÓN DE MÉTRICAS POR ÉPOCAS ---
-num_epochs = 50
-iterations_per_epoch = 200  # total = 10,000 iteraciones (50 * 200)
+num_epochs = 10
+iterations_per_epoch = 100  # total = 10,000 iteraciones (50 * 200)
 
 quantization_errors = []
 topographic_errors = []
 
 print("Entrenando SOM y calculando métricas...")
 for epoch in range(num_epochs):
-    # Entrenamiento por bloques aleatorios
+    # 1. Calcular el decaimiento exponencial para la época actual
+    # Al final de num_epochs, sigma se aproximará a 1.0 y lr a 0.01
+    current_sigma = sigma_inicial * np.exp(-epoch / (num_epochs / np.log(sigma_inicial / 1.0)))
+    current_lr = lr_inicial * np.exp(-epoch / (num_epochs / np.log(lr_inicial / 0.01)))
+    
+    # 2. Inyectar dinámicamente los nuevos parámetros calculados en la red
+    som.sigma = current_sigma
+    som.learning_rate = current_lr
+    
+    # 3. Entrenar la porción correspondiente a esta época
     som.train_random(joint_images, iterations_per_epoch, verbose=False)
     
-    # Cálculo de métricas actuales
+    # 4. Cálculo de métricas para monitorear convergencia
     q_error = som.quantization_error(joint_images)
     t_error = som.topographic_error(joint_images)
     
     quantization_errors.append(q_error)
     topographic_errors.append(t_error)
     
-    if (epoch + 1) % 10 == 0 or epoch == 0:
-        print(f"Época {epoch+1}/{num_epochs} - Q-Error: {q_error:.4f} - T-Error: {t_error:.4f}")
+    if (epoch + 1) % 5 == 0 or epoch == 0:
+        print(f"Época {epoch+1:02d}/{num_epochs} | Sigma: {current_sigma:.2f} | LR: {current_lr:.3f} | Q-Error: {q_error:.4f} | T-Error: {t_error:.4f}")
 
 print("Entrenamiento completado.")
 
