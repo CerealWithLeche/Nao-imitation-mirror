@@ -1,0 +1,16 @@
+------------- RANGOS DE LOS MOTORES EN RADIANES -------------
+40     | LShoulderRoll        | Revolute     | -0.314159    | 1.32645      | 1.78       | 7.19
+42     | LElbowRoll           | Revolute     | -1.54462     | -0.0349066   | 1.53       | 7.19
+57     | RShoulderRoll        | Revolute     | -1.32645     | 0.314159     | 1.78       | 7.19
+59     | RElbowRoll           | Revolute     | 0.0349066    | 1.54462      | 1.53       | 7.19
+
+
+------------- RANGOS DE LOS MOTORES EN GRADOS -------------
+40     | LShoulderRoll        | 1.6405 (0.3141 + 1.3264)	| 93.9937°
+42     | LElbowRoll           | 1.5795 (1.5446 - 0.0349)	| 86.4994°
+57     | RShoulderRoll        | 1.6405 (1.3264 + 0.3141)	| 93.9937°
+59     | RElbowRoll	      | 1.5795 (0.0349 - 1.5446)	| 86.4994°
+
++ Delta (Rango de paso para poses): 0.0174 radianes = 0.9969°
+
+{Recién recolecto las 10mil poses con un delta de 1° para iniciar entrenamientos con soms de 100x100. Tengo que modificar los codigos de los soms para que se muevan con el delta también}
